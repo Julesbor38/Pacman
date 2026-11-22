@@ -14,15 +14,15 @@ debug:
 	uv run python3 -m pdb $(MAIN) $(CONFIG)
 
 clean:
-	@rm -rf $$(find . -type d -name "__pycache__") $$(find . -type d -name ".mypy_cache")
-	@rm -rf build dist
+	@rm -rf __pycache__ .mypy_cache .pytest_cache build dist
+	@find src -type d -name "__pycache__" -exec rm -rf {} +
 
 lint:
 	uv run python3 -m flake8 . --exclude $(VENV)
-	uv run python3 -m mypy . $(MYPY_FLAGS)
+	uv run python3 -m mypy . $(MYPY_FLAGS) --exclude $(VENV)
 
 lint-strict:
 	uv run python3 -m flake8 . --exclude $(VENV)
-	uv run python3 -m mypy . $(MYPY_FLAGS) --strict
+	uv run python3 -m mypy . $(MYPY_FLAGS) --strict --exclude $(VENV)
 
 .PHONY: install run debug clean lint lint-strict
