@@ -13,6 +13,7 @@ def main() -> None:
     if len(sys.argv) != 2:
         print(USAGE, file=sys.stderr)
         sys.exit(2)
+
     config = load_config(sys.argv[1])
     print("Configuration loaded:")
     print(f"  highscore file : {config.highscore_filename}")

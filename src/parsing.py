@@ -100,6 +100,10 @@ def load_config(path: str) -> Config:
     if not isinstance(data, dict):
         _warn("config root must be a JSON object, using defaults")
         return config
+    know_keys = {item.name for item in fields(Config)} | {"level"}
+    for key in data:
+        if key not in know_keys:
+            _warn(f"unknow key '{key}' ignored")
     for item in fields(Config):
         if item.name == "levels" or item.name not in data:
             continue
