@@ -54,3 +54,22 @@ def _check_value(name: str, value: Any, default: Any) -> Any:
 	return value
 
 
+def _read_levels(raw: Any) -> list[dict[str, int]]:
+	if not isinstance(raw, list):
+		_warn("level: list expected, using default levels")
+		return default_levels()
+	levels: list[dict[str, int]] = []
+	for index, entry in enumerate(raw, start=1):
+		if not isinstance(entry, dict):
+			_warn(f"level {index} ignord: object expected")
+			continue
+		levels.append({
+			key: _check_value(key, entry.get(key, DEFAULT_LEVEL[key]), DEFAULT_LEVEL[key])
+			for key in ("width", "height")
+		})
+	if len(levels) < MIN_LEVELS:
+		_warn(f"{len(levels)} levels found, at least {MIN_LEVELS} required")
+		return levels or default_levels()
+
+def strip_comments(text: str) -> str:
+	return "\n".join(line for line in text.splitlines() if not line.lstrip().startswith("#"))
