@@ -16,8 +16,6 @@ dev = [
     "pytest>=8.0.0",
 ]
 
-[project.scripts]
-pacman = "pacman:main"
 
 [tool.uv.sources]
 mazegenerator = { path = "mazegenerator-2.1.0-py3-none-any.whl" }
@@ -32,7 +30,3 @@ check_untyped_defs = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-
-[build-system]
-requires = ["uv_build>=0.13.9,<0.14.0"]
-build-backend = "uv_build"

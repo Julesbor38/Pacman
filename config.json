@@ -1,0 +1,26 @@
+{
+	# High scores save
+	"highscore_filename": "highscore.json",
+
+	# Game settings
+
+	"lives": 3,
+	"pacgum": 42,
+	"points_per_pacgum": 10,
+	"points_per_super_pacgum": 50,
+	"points_per_ghost": 200,
+	"seed": 42,
+	"level_max_time": 90,
+	"level": [
+		{"width": 21, "height": 15},
+        {"width": 21, "height": 15},
+        {"width": 23, "height": 17},
+        {"width": 23, "height": 17},
+        {"width": 25, "height": 19},
+        {"width": 25, "height": 19},
+        {"width": 27, "height": 21},
+        {"width": 27, "height": 21},
+        {"width": 29, "height": 23},
+        {"width": 31, "height": 25}
+    ]
+}
