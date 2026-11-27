@@ -19,7 +19,7 @@ def draw_line(
     y1: int,
     color: Color,
 ) -> None:
-    """Draw a one-pixel line between two points (Bresenham)."""
+    """Draw a one-pixel line between two points """
     dx = abs(x1 - x0)
     dy = -abs(y1 - y0)
     step_x = 1 if x0 < x1 else -1
