@@ -36,3 +36,14 @@ def draw_line(
         if double <= dx:
             error += dx
             y0 += step_y
+
+
+def draw_circle(
+    surface: pygame.Surface, cx: int, cy: int, radius: int, color: Color
+) -> None:
+    """Fill a circle, pixel by pixel."""
+    for dy in range(-radius, radius + 1):
+        for dx in range(-radius, radius + 1):
+            if dx * dx + dy * dy <= radius * radius:
+                put_pixel(surface, cx + dx, cy + dy, color)
+
