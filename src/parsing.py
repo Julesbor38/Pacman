@@ -10,7 +10,6 @@ DEFAULT_LEVEL = {"width": 21, "height": 15}
 
 BOUNDS: dict[str, tuple[int, int]] = {
     "lives": (1, 10),
-    "pacgum": (1, 100),
     "points_per_pacgum": (0, 10_000),
     "points_per_super_pacgum": (0, 10_000),
     "points_per_ghost": (0, 10_000),
@@ -29,7 +28,6 @@ def default_levels() -> list[dict[str, int]]:
 class Config:
     highscore_filename: str = "highscores.json"
     lives: int = 3
-    pacgum: int = 42
     points_per_pacgum: int = 10
     points_per_super_pacgum: int = 50
     points_per_ghost: int = 200
