@@ -28,7 +28,6 @@ def default_levels() -> list[dict[str, int]]:
 class Config:
     highscore_filename: str = "highscores.json"
     lives: int = 3
-    pacgum: int = 42
     points_per_pacgum: int = 10
     points_per_super_pacgum: int = 50
     points_per_ghost: int = 200
@@ -43,10 +42,10 @@ def _warn(message: str) -> None:
 
 def _check_value(name: str, value: Any, default: Any) -> Any:
     if type(value) is not type(default):
-        _warn(f"{name} : expected {type(default).__name__}, using {default}")
+        _warn(f"{name}: expected {type(default).__name__}, using {default}")
         return default
     if isinstance(value, str) and not value.strip():
-        _warn(f"{name}: empty string using {default}")
+        _warn(f"{name}: empty string, using {default}")
         return default
     if name in BOUNDS:
         low, high = BOUNDS[name]
@@ -60,56 +59,61 @@ def _check_value(name: str, value: Any, default: Any) -> Any:
 def _read_levels(raw: Any) -> list[dict[str, int]]:
 
     if not isinstance(raw, list):
-        _warn("level: list expected, using default levels")
+        _warn("levels: list expected, using default levels")
         return default_levels()
     levels: list[dict[str, int]] = []
     for index, entry in enumerate(raw, start=1):
         if not isinstance(entry, dict):
             _warn(f"level {index} ignored: object expected")
             continue
+        for key in entry:
+            if key not in DEFAULT_LEVEL:
+                _warn(f"level {index}: unknown key '{key}' ignored")
         levels.append({
             key: _check_value(key, entry.get(key, DEFAULT_LEVEL[key]),
                               DEFAULT_LEVEL[key])
             for key in ("width", "height")
         })
     if len(levels) < MIN_LEVELS:
-        _warn(f"{len(levels)} levels found, at least {MIN_LEVELS} required")
-    return levels or default_levels()
+        _warn(f"{len(levels)} levels found, padding with default levels")
+        levels += [dict(DEFAULT_LEVEL) for
+                   _ in range(MIN_LEVELS - len(levels))]
+    return levels
 
 
 def strip_comments(text: str) -> str:
-    return "\n".join(line for line in text.splitlines()
-                     if not line.lstrip().startswith("#"))
+    return "\n".join("" if line.lstrip().startswith("#")
+                     else line for line in text.splitlines())
 
 
 def load_config(path: str) -> Config:
     config = Config()
     file = Path(path)
     if not file.is_file():
-        _warn(f"config file not found: {path}, using default")
+        _warn(f"config file not found: {path}, using defaults")
         return config
     try:
         data = json.loads(strip_comments(file.read_text(encoding="utf-8")))
     except json.JSONDecodeError as error:
         _warn(f"Invalid JSON at line {error.lineno}:"
-              f"{error.msg}, using default")
+              f" {error.msg}, using defaults")
         return config
     except (OSError, UnicodeDecodeError) as error:
-        _warn(f"cannot read {path}: {error}, using defaulst")
+        _warn(f"cannot read {path}: {error}, using defaults")
         return config
     if not isinstance(data, dict):
         _warn("config root must be a JSON object, using defaults")
         return config
-    know_keys = {item.name for item in fields(Config)} | {"level"}
+    known_keys = {item.name for item in fields(Config)}
     for key in data:
-        if key not in know_keys:
-            _warn(f"unknow key '{key}' ignored")
+        if key not in known_keys:
+            _warn(f"unknown key '{key}' ignored")
     for item in fields(Config):
         if item.name == "levels" or item.name not in data:
             continue
         default = getattr(config, item.name)
         setattr(config, item.name, _check_value(
             item.name, data[item.name], default))
-    if "level" in data:
-        config.levels = _read_levels(data["level"])
+    if "levels" in data:
+        config.levels = _read_levels(data["levels"])
     return config
