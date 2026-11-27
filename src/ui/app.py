@@ -1,14 +1,36 @@
 """Main Pygame window controller."""
 
 import pygame
+from .screens.base import Screen
+from .screens.main_menu import MainMenu
+from .state import State
+from .screens.instructions import InstructionsScreen
+from ..parsing import Config
 
 
 class App:
-    """Manages the game window and main loop."""
+    """Manage the game window, the main loop and the current screen.
 
-    def __init__(self, width: int = 800, height: int = 600) -> None:
-        """Initialize Pygame and open the window."""
+    The app keeps one screen per state and forwards events and drawing
+    to the screen of the current state.
+    """
+
+    def __init__(self, config: Config,
+                 width: int = 800,
+                 height: int = 600) -> None:
+        """Initialize Pygame, create the screens and open the window.
+
+        Args:
+            config: Game configuration loaded from the JSON file.
+            width: Width of the window, in pixels.
+            height: Height of the window, in pixels.
+        """
         pygame.init()
+        self.screens: dict[State, Screen] = {
+            State.MENU: MainMenu(),
+            State.INSTRUCTIONS: InstructionsScreen(config),
+        }
+        self.state = State.MENU
         self.screen = pygame.display.set_mode((width, height))
         pygame.display.set_caption("Pac-Man")
         self.clock = pygame.time.Clock()
@@ -23,15 +45,23 @@ class App:
         pygame.quit()
 
     def handle_events(self) -> None:
-        """Read window and keyboard events."""
+        """Read events and forward them to the current screen.
+
+        Closing the window stops the app. When the
+        current screen returns a new state, switch to it if its screen
+        exists, or stop the app if the state is EXIT.
+        """
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
+            else:
+                next_state = self.screens[self.state].handle_event(event)
+                if next_state == State.EXIT:
                     self.running = False
+                elif next_state in self.screens:
+                    self.state = next_state
 
     def render(self) -> None:
-        """Clear the screen and display the new frame."""
-        self.screen.fill((0, 0, 0))
+        """Draw the current screen and display the new frame."""
+        self.screens[self.state].render(self.screen)
         pygame.display.flip()

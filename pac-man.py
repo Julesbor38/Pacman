@@ -20,7 +20,7 @@ def main() -> None:
     print(f"  lives          : {config.lives}")
     print(f"  level max time : {config.level_max_time}s")
     print(f"  levels         : {len(config.levels)}")
-    app = App()
+    app = App(config)
     app.run()
 
 
